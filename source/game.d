@@ -3,6 +3,12 @@ import std.stdio;
 import std.conv;
 import raylib;
 
+struct Vec2
+{
+    int x;
+    int y;
+}
+
 class Game
 {
     int W;
@@ -10,6 +16,8 @@ class Game
     int CELLS_X;
     int CELLS_Y;
     Cell[][] grid;
+    Vec2 player;
+    bool gameOver = false;
 
     this(int window_w, int window_h, int CELLS_X, int CELLS_Y)
     {
@@ -19,6 +27,8 @@ class Game
         this.CELLS_Y = CELLS_Y;
 
         grid = new Cell[][](CELLS_Y, CELLS_X);
+        player.x = to!int(CELLS_X / 2);
+        player.y = 1;
 
         for (int colIndex = 0; colIndex < CELLS_Y; colIndex++)
         {
@@ -36,8 +46,55 @@ class Game
         }
     }
 
+    void update()
+    {
+        Vec2 playerBefore = player;
+
+        // Input
+        if (IsKeyDown(KeyboardKey.KEY_LEFT))
+            player.x -= 1;
+        if (IsKeyDown(KeyboardKey.KEY_RIGHT))
+            player.x += 1;
+        if (IsKeyDown(KeyboardKey.KEY_UP))
+            player.y -= 1;
+        if (IsKeyDown(KeyboardKey.KEY_DOWN))
+            player.y += 1;
+
+        if (!(playerBefore == player))
+        {
+            // Clear player pos
+            grid[playerBefore.y][playerBefore.x] = Cell.TRAIL;
+        }
+
+        // Check for boundaries
+        if (player.x >= CELLS_X)
+            player.x = CELLS_X - 1;
+        if (player.x < 0)
+            player.x = 0;
+        if (player.y >= CELLS_Y)
+            player.y = CELLS_Y - 1;
+        if (player.y < 0)
+            player.y = 0;
+
+        // Check for trail
+        if (grid[player.y][player.x] == Cell.TRAIL)
+            gameOver = true;
+
+        // Move player on grid
+        grid[player.y][player.x] = Cell.PLAYER;
+    }
+
     void draw()
     {
+        if (gameOver)
+        {
+            DrawText("Game Over!", to!int(CELLS_X / 2) * W - 100, to!int(
+                    CELLS_Y / 2) * H, 50, Colors
+                    .BLACK);
+
+            return;
+        }
+
         foreach (colIndex, ref Cell[] row; grid)
         {
             foreach (index, ref Cell cell; row)

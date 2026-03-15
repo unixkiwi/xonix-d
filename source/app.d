@@ -16,6 +16,8 @@ void main()
 
     while (!WindowShouldClose())
     {
+        game.update();
+
         BeginDrawing();
         scope (exit)
             EndDrawing();
