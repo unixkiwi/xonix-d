@@ -17,6 +17,8 @@ class Game
     int CELLS_Y;
     Cell[][] grid;
     Vec2 player;
+    Vec2 enemy;
+    Vec2 enemyVel;
     bool gameOver = false;
 
     this(int window_w, int window_h, int CELLS_X, int CELLS_Y)
@@ -29,6 +31,13 @@ class Game
         grid = new Cell[][](CELLS_Y, CELLS_X);
         player.x = to!int(CELLS_X / 2);
         player.y = 1;
+
+        enemyVel = Vec2(
+            1, 1
+        );
+
+        enemy.x = 20;
+        enemy.y = 25;
 
         for (int colIndex = 0; colIndex < CELLS_Y; colIndex++)
         {
@@ -80,6 +89,28 @@ class Game
         if (grid[player.y][player.x] == Cell.TRAIL)
             gameOver = true;
 
+        // bouncing horizontally
+        int nextX = enemy.x + enemyVel.x;
+        if (nextX < 0 || nextX >= CELLS_X || grid[enemy.y][nextX] == Cell.FILLED)
+        {
+            enemyVel.x *= -1;
+        }
+        else
+        {
+            enemy.x = nextX;
+        }
+
+        // bouncing vertically
+        int nextY = enemy.y + enemyVel.y;
+        if (nextY < 0 || nextY >= CELLS_Y || grid[nextY][enemy.x] == Cell.FILLED)
+        {
+            enemyVel.y *= -1;
+        }
+        else
+        {
+            enemy.y = nextY;
+        }
+
         // Move player on grid
         grid[player.y][player.x] = Cell.PLAYER;
     }
@@ -125,5 +156,8 @@ class Game
                         colIndex * H), W, H, color);
             }
         }
+
+        // Enemy 
+        DrawRectangle(to!int(enemy.x * W), to!int(enemy.y * H), W, H, Colors.PINK);
     }
 }
