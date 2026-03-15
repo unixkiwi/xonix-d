@@ -53,11 +53,11 @@ class Game
         // Input
         if (IsKeyDown(KeyboardKey.KEY_LEFT))
             player.x -= 1;
-        if (IsKeyDown(KeyboardKey.KEY_RIGHT))
+        else if (IsKeyDown(KeyboardKey.KEY_RIGHT))
             player.x += 1;
-        if (IsKeyDown(KeyboardKey.KEY_UP))
+        else if (IsKeyDown(KeyboardKey.KEY_UP))
             player.y -= 1;
-        if (IsKeyDown(KeyboardKey.KEY_DOWN))
+        else if (IsKeyDown(KeyboardKey.KEY_DOWN))
             player.y += 1;
 
         if (!(playerBefore == player))
