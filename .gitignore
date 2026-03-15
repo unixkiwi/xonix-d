@@ -1,0 +1,17 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/xonix-d
+xonix-d.so
+xonix-d.dylib
+xonix-d.dll
+libxonix-d.a
+xonix-d.a
+xonix-d.lib
+xonix-d-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst
