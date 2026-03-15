@@ -1,5 +1,6 @@
 import std.stdio;
 import raylib;
+import grid;
 
 void main()
 {
@@ -11,12 +12,16 @@ void main()
     scope (exit)
         CloseWindow();
 
+    Grid grid = new Grid(WIDTH, HEIGHT, 150, 100);
+
     while (!WindowShouldClose())
     {
         BeginDrawing();
         scope (exit)
             EndDrawing();
 
-        ClearBackground(Colors.DARKGREEN);
+        ClearBackground(Colors.BLUE);
+
+        grid.draw();
     }
 }
