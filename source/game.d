@@ -3,7 +3,7 @@ import std.stdio;
 import std.conv;
 import raylib;
 
-class Grid
+class Game
 {
     int W;
     int H;
