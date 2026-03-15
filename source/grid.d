@@ -57,6 +57,9 @@ class Grid
                 case Cell.OLD_TRAIL:
                     color = Colors.DARKGREEN;
                     break;
+                case Cell.PLAYER:
+                    color = Colors.RED;
+                    break;
                 default:
                     color = Colors.LIME;
                 }
