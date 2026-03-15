@@ -1,12 +1,1 @@
-{
-	"description": "A recreation of the old xonix game.",
-	"dependencies": {
-		"raylib-d": "~>5.5.3"
-	},
-	"authors": [
-		"unixkiwi"
-	],
-	"copyright": "Copyright © 2026, unixkiwi",
-	"license": "MIT",
-	"name": "xonix-d"
-}
+{"libs" : ["raylib"], "lflags-posix" : ["-L."], "lflags-osx" : ["-rpath", "@executable_path/"], "lflags-linux" : ["-rpath=$$ORIGIN"], "description" : "A recreation of the old xonix game.", "name" : "xonix-d", "dependencies" : {"raylib-d" : "~>5.5.3"}, "authors" : ["unixkiwi"], "copyright" : "Copyright © 2026, unixkiwi", "license" : "MIT"}
