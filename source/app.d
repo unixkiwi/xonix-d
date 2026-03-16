@@ -18,7 +18,15 @@ void main()
 
     while (!WindowShouldClose())
     {
-        game.update();
+        if (game.gameOver)
+        {
+            if (IsKeyPressed(KeyboardKey.KEY_R))
+                game = new Game(WIDTH, HEIGHT, 150, 100);
+        }
+        else
+        {
+            game.update();
+        }
 
         Camera2D camera;
         camera.offset = Vector2(0, 0);

@@ -105,7 +105,7 @@ class Game
     {
         if (gameOver)
         {
-            DrawText("Game Over!", to!int(CELLS_X / 2) * W - 100, to!int(
+            DrawText("Game Over!\nPress R to restart!", to!int(CELLS_X / 2) * W - 100, to!int(
                     CELLS_Y / 2) * H, 50, Colors
                     .BLACK);
 
