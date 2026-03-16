@@ -18,6 +18,11 @@ class Enemy
 
         vel.x = uniform!"[]"(-1, 1);
         vel.y = uniform!"[]"(-1, 1);
+
+        if (vel.x == 0)
+            vel.x = -1;
+        if (vel.y == 0)
+            vel.x = -1;
     }
 
     void update()
