@@ -9,22 +9,19 @@ import enemy;
 import std.array;
 import std.algorithm;
 
-struct Vec2
-{
+struct Vec2 {
     int x;
     int y;
 }
 
-enum Direction
-{
+enum Direction {
     UP,
     DOWN,
     LEFT,
     RIGHT
 }
 
-class Game
-{
+class Game {
     int W;
     int H;
     int CELLS_X;
@@ -40,8 +37,7 @@ class Game
     int lives = 5;
     int count = 0;
 
-    this(int window_w, int window_h, int CELLS_X, int CELLS_Y)
-    {
+    this(int window_w, int window_h, int CELLS_X, int CELLS_Y) {
         this.CELLS_X = CELLS_X;
         this.CELLS_Y = CELLS_Y;
 
@@ -50,29 +46,22 @@ class Game
         player.y = 1;
         playerDir = Direction.DOWN;
 
-        foreach (int i; 0 .. ENEMY_COUNT)
-        {
+        foreach (int i; 0 .. ENEMY_COUNT) {
             enemies ~= new Enemy(this);
         }
 
-        for (int colIndex = 0; colIndex < CELLS_Y; colIndex++)
-        {
-            for (int index = 0; index < CELLS_X; index++)
-            {
-                if (index < 2 || index > CELLS_X - 3 || colIndex < 2 || colIndex > CELLS_Y - 3)
-                {
+        for (int colIndex = 0; colIndex < CELLS_Y; colIndex++) {
+            for (int index = 0; index < CELLS_X; index++) {
+                if (index < 2 || index > CELLS_X - 3 || colIndex < 2 || colIndex > CELLS_Y - 3) {
                     grid[colIndex][index] = Cell.FILLED;
-                }
-                else
-                {
+                } else {
                     grid[colIndex][index] = Cell.EMPTY;
                 }
             }
         }
     }
 
-    void update(float dt)
-    {
+    void update(float dt) {
         tickTimer -= dt;
         int prevLives = lives;
 
@@ -86,12 +75,10 @@ class Game
         else if (IsKeyDown(KeyboardKey.KEY_DOWN))
             playerDir = Direction.DOWN;
 
-        if (tickTimer <= 0)
-        {
+        if (tickTimer <= 0) {
             Vec2 playerBefore = player;
 
-            switch (playerDir)
-            {
+            switch (playerDir) {
             case Direction.UP:
                 player.y--;
                 break;
@@ -110,8 +97,7 @@ class Game
             }
 
             if (!(player.x >= CELLS_X || player.x < 0 || player.y >= CELLS_Y || player.y < 0) && !(
-                    grid[playerBefore.y][playerBefore.x] == Cell.FILLED))
-            {
+                    grid[playerBefore.y][playerBefore.x] == Cell.FILLED)) {
                 // Clear player pos
                 grid[playerBefore.y][playerBefore.x] = Cell.TRAIL;
             }
@@ -127,29 +113,23 @@ class Game
                 player.y = 0;
 
             // Enemy Update
-            foreach (ref enemy; enemies)
-            {
+            foreach (ref enemy; enemies) {
                 enemy.update();
             }
 
             if (grid[playerBefore.y][playerBefore.x] == Cell.TRAIL && grid[player.y][player.x] == Cell
-                .FILLED)
-            {
+                .FILLED) {
                 fill();
-            }
-            else if (grid[player.y][player.x] == Cell.TRAIL)
-            {
+            } else if (grid[player.y][player.x] == Cell.TRAIL) {
                 lives--;
             }
 
-            if (prevLives > lives)
-            {
+            if (prevLives > lives) {
 
                 player.x = to!int(CELLS_X / 2);
                 player.y = 1;
                 playerDir = Direction.DOWN;
-                foreach (ref cell; grid.joiner())
-                {
+                foreach (ref cell; grid.joiner()) {
                     if (cell == Cell.TRAIL)
                         cell = Cell.EMPTY;
                 }
@@ -163,10 +143,8 @@ class Game
         }
     }
 
-    void draw()
-    {
-        if (gameOver)
-        {
+    void draw() {
+        if (gameOver) {
             DrawText("Game Over!\nPress R to restart!", to!int(CELLS_X / 2) * W - 100, to!int(
                     CELLS_Y / 2) * H, 50, Colors
                     .BLACK);
@@ -178,13 +156,10 @@ class Game
         W = scale;
         H = scale;
         count = 0;
-        foreach (colIndex, ref Cell[] row; grid)
-        {
-            foreach (index, ref Cell cell; row)
-            {
+        foreach (colIndex, ref Cell[] row; grid) {
+            foreach (index, ref Cell cell; row) {
                 Color color;
-                switch (cell)
-                {
+                switch (cell) {
                 case Cell.EMPTY:
                     color = Colors.LIGHTGRAY;
                     break;
@@ -205,8 +180,7 @@ class Game
 
                 DrawRectangle(to!int(index * W), to!int(
                         colIndex * H), W, H, color);
-                if (colIndex == player.y && index == player.x)
-                {
+                if (colIndex == player.y && index == player.x) {
                     DrawRectangle(to!int(index * W), to!int(
                             colIndex * H), W, H, Colors.RED);
                 }
@@ -224,19 +198,15 @@ class Game
         DrawText(toStringz("Lives: " ~ to!string(lives)), 5, 50, 35, Colors.BLACK);
 
         // Enemy draw
-        foreach (ref enemy; enemies)
-        {
+        foreach (ref enemy; enemies) {
             enemy.draw();
         }
 
     }
 
-    void fill()
-    {
-        foreach (y; 0 .. CELLS_Y)
-        {
-            foreach (x; 0 .. CELLS_X)
-            {
+    void fill() {
+        foreach (y; 0 .. CELLS_Y) {
+            foreach (x; 0 .. CELLS_X) {
                 if (grid[y][x] == Cell.TRAIL)
                     grid[y][x] = Cell.FILLED;
             }
@@ -245,13 +215,11 @@ class Game
         bool[][] visited = new bool[][](CELLS_Y, CELLS_X);
 
         Vec2[] stack;
-        foreach (ref enemy; enemies)
-        {
+        foreach (ref enemy; enemies) {
             stack ~= enemy.pos;
         }
 
-        while (stack.length > 0)
-        {
+        while (stack.length > 0) {
             Vec2 pos = stack[$ - 1];
             stack.popBack();
 
@@ -268,12 +236,9 @@ class Game
             stack ~= Vec2(pos.x, pos.y - 1);
         }
 
-        foreach (y; 0 .. CELLS_Y)
-        {
-            foreach (x; 0 .. CELLS_X)
-            {
-                if (grid[y][x] == Cell.EMPTY && !visited[y][x])
-                {
+        foreach (y; 0 .. CELLS_Y) {
+            foreach (x; 0 .. CELLS_X) {
+                if (grid[y][x] == Cell.EMPTY && !visited[y][x]) {
                     grid[y][x] = Cell.FILLED;
                 }
             }
