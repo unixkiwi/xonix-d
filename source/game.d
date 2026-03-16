@@ -16,6 +16,8 @@ class Game
     int H;
     int CELLS_X;
     int CELLS_Y;
+    float CANVAS_WIDTH;
+    float CANVAS_HEIGHT;
     Cell[][] grid;
     Vec2 player;
     Enemy[] enemies;
@@ -27,6 +29,8 @@ class Game
         this.H = window_h / CELLS_Y;
         this.CELLS_X = CELLS_X;
         this.CELLS_Y = CELLS_Y;
+        CANVAS_WIDTH = CELLS_X * W;
+        CANVAS_HEIGHT = CELLS_Y * H;
 
         grid = new Cell[][](CELLS_Y, CELLS_X);
         player.x = to!int(CELLS_X / 2);
