@@ -2,6 +2,7 @@ import cell;
 import std.stdio;
 import std.conv;
 import raylib;
+import enemy;
 
 struct Vec2
 {
@@ -17,8 +18,7 @@ class Game
     int CELLS_Y;
     Cell[][] grid;
     Vec2 player;
-    Vec2 enemy;
-    Vec2 enemyVel;
+    Enemy[] enemies;
     bool gameOver = false;
 
     this(int window_w, int window_h, int CELLS_X, int CELLS_Y)
@@ -32,12 +32,10 @@ class Game
         player.x = to!int(CELLS_X / 2);
         player.y = 1;
 
-        enemyVel = Vec2(
-            1, 1
-        );
-
-        enemy.x = 20;
-        enemy.y = 25;
+        foreach (int i; 0 .. 3)
+        {
+            enemies ~= new Enemy(this);
+        }
 
         for (int colIndex = 0; colIndex < CELLS_Y; colIndex++)
         {
@@ -89,26 +87,10 @@ class Game
         if (grid[player.y][player.x] == Cell.TRAIL)
             gameOver = true;
 
-        // bouncing horizontally
-        int nextX = enemy.x + enemyVel.x;
-        if (nextX < 0 || nextX >= CELLS_X || grid[enemy.y][nextX] == Cell.FILLED)
+        // Enemy Update
+        foreach (ref enemy; enemies)
         {
-            enemyVel.x *= -1;
-        }
-        else
-        {
-            enemy.x = nextX;
-        }
-
-        // bouncing vertically
-        int nextY = enemy.y + enemyVel.y;
-        if (nextY < 0 || nextY >= CELLS_Y || grid[nextY][enemy.x] == Cell.FILLED)
-        {
-            enemyVel.y *= -1;
-        }
-        else
-        {
-            enemy.y = nextY;
+            enemy.update();
         }
 
         // Move player on grid
@@ -157,7 +139,11 @@ class Game
             }
         }
 
-        // Enemy 
-        DrawRectangle(to!int(enemy.x * W), to!int(enemy.y * H), W, H, Colors.PINK);
+        // Enemy draw
+        foreach (ref enemy; enemies)
+        {
+            enemy.draw();
+        }
+
     }
 }
