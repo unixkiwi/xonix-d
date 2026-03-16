@@ -2,6 +2,7 @@ import cell;
 import game;
 import std.random;
 import std.conv;
+import std.algorithm;
 import raylib;
 
 class Enemy

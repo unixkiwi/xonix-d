@@ -18,6 +18,8 @@ void main()
 
     while (!WindowShouldClose())
     {
+        float dt = GetFrameTime();
+
         if (game.gameOver)
         {
             if (IsKeyPressed(KeyboardKey.KEY_R))
@@ -25,7 +27,7 @@ void main()
         }
         else
         {
-            game.update();
+            game.update(dt);
         }
 
         Camera2D camera;

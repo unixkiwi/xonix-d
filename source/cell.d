@@ -4,5 +4,4 @@ enum Cell
     FILLED,
     PLAYER,
     TRAIL,
-    OLD_TRAIL
 }

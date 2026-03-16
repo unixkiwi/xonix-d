@@ -3,11 +3,21 @@ import std.stdio;
 import std.conv;
 import raylib;
 import enemy;
+import std.array;
+import std.algorithm;
 
 struct Vec2
 {
     int x;
     int y;
+}
+
+enum Direction
+{
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
 }
 
 class Game
@@ -20,8 +30,12 @@ class Game
     float CANVAS_HEIGHT;
     Cell[][] grid;
     Vec2 player;
+    Direction playerDir;
     Enemy[] enemies;
+    immutable int ENEMY_COUNT = 3;
     bool gameOver = false;
+    immutable float TICK_RATE = 0.04;
+    float tickTimer = TICK_RATE;
 
     this(int window_w, int window_h, int CELLS_X, int CELLS_Y)
     {
@@ -35,8 +49,9 @@ class Game
         grid = new Cell[][](CELLS_Y, CELLS_X);
         player.x = to!int(CELLS_X / 2);
         player.y = 1;
+        playerDir = Direction.DOWN;
 
-        foreach (int i; 0 .. 3)
+        foreach (int i; 0 .. ENEMY_COUNT)
         {
             enemies ~= new Enemy(this);
         }
@@ -57,48 +72,78 @@ class Game
         }
     }
 
-    void update()
+    void update(float dt)
     {
-        Vec2 playerBefore = player;
+        tickTimer -= dt;
 
         // Input
         if (IsKeyDown(KeyboardKey.KEY_LEFT))
-            player.x -= 1;
+            playerDir = Direction.LEFT;
         else if (IsKeyDown(KeyboardKey.KEY_RIGHT))
-            player.x += 1;
+            playerDir = Direction.RIGHT;
         else if (IsKeyDown(KeyboardKey.KEY_UP))
-            player.y -= 1;
+            playerDir = Direction.UP;
         else if (IsKeyDown(KeyboardKey.KEY_DOWN))
-            player.y += 1;
+            playerDir = Direction.DOWN;
 
-        // Check for boundaries
-        if (player.x >= CELLS_X)
-            player.x = CELLS_X - 1;
-        if (player.x < 0)
-            player.x = 0;
-        if (player.y >= CELLS_Y)
-            player.y = CELLS_Y - 1;
-        if (player.y < 0)
-            player.y = 0;
-
-        if (!(playerBefore == player))
+        if (tickTimer <= 0)
         {
-            // Clear player pos
-            grid[playerBefore.y][playerBefore.x] = Cell.TRAIL;
+            Vec2 playerBefore = player;
+
+            switch (playerDir)
+            {
+            case Direction.UP:
+                player.y--;
+                break;
+            case Direction.DOWN:
+                player.y++;
+                break;
+            case Direction.LEFT:
+                player.x--;
+                break;
+            case Direction.RIGHT:
+                player.x++;
+                break;
+            default:
+                player.y++;
+                break;
+            }
+
+            if (!(player.x >= CELLS_X || player.x < 0 || player.y >= CELLS_Y || player.y < 0) && !(
+                    grid[playerBefore.y][playerBefore.x] == Cell.FILLED))
+            {
+                // Clear player pos
+                grid[playerBefore.y][playerBefore.x] = Cell.TRAIL;
+            }
+
+            // Check for boundaries
+            if (player.x >= CELLS_X)
+                player.x = CELLS_X - 1;
+            if (player.x < 0)
+                player.x = 0;
+            if (player.y >= CELLS_Y)
+                player.y = CELLS_Y - 1;
+            if (player.y < 0)
+                player.y = 0;
+
+            if (grid[playerBefore.y][playerBefore.x] == Cell.TRAIL && grid[player.y][player.x] == Cell
+                .FILLED)
+            {
+                fill();
+            }
+            else if (grid[player.y][player.x] == Cell.TRAIL)
+            {
+                gameOver = true;
+            }
+
+            // Enemy Update
+            foreach (ref enemy; enemies)
+            {
+                enemy.update();
+            }
+
+            tickTimer += TICK_RATE;
         }
-
-        // Check for trail
-        if (grid[player.y][player.x] == Cell.TRAIL)
-            gameOver = true;
-
-        // Enemy Update
-        foreach (ref enemy; enemies)
-        {
-            enemy.update();
-        }
-
-        // Move player on grid
-        grid[player.y][player.x] = Cell.PLAYER;
     }
 
     void draw()
@@ -128,9 +173,6 @@ class Game
                 case Cell.TRAIL:
                     color = Colors.GREEN;
                     break;
-                case Cell.OLD_TRAIL:
-                    color = Colors.DARKGREEN;
-                    break;
                 case Cell.PLAYER:
                     color = Colors.RED;
                     break;
@@ -140,6 +182,11 @@ class Game
 
                 DrawRectangle(to!int(index * W), to!int(
                         colIndex * H), W, H, color);
+                if (colIndex == player.y && index == player.x)
+                {
+                    DrawRectangle(to!int(index * W), to!int(
+                            colIndex * H), W, H, Colors.RED);
+                }
             }
         }
 
@@ -149,5 +196,54 @@ class Game
             enemy.draw();
         }
 
+    }
+
+    void fill()
+    {
+        foreach (y; 0 .. CELLS_Y)
+        {
+            foreach (x; 0 .. CELLS_X)
+            {
+                if (grid[y][x] == Cell.TRAIL)
+                    grid[y][x] = Cell.FILLED;
+            }
+        }
+
+        bool[][] visited = new bool[][](CELLS_Y, CELLS_X);
+
+        Vec2[] stack;
+        foreach (ref enemy; enemies)
+        {
+            stack ~= enemy.pos;
+        }
+
+        while (stack.length > 0)
+        {
+            Vec2 pos = stack[$ - 1];
+            stack.popBack();
+
+            if (pos.x < 0 || pos.x >= CELLS_X || pos.y < 0 || pos.y >= CELLS_Y)
+                continue;
+            if (visited[pos.y][pos.x] || grid[pos.y][pos.x] != Cell.EMPTY)
+                continue;
+
+            visited[pos.y][pos.x] = true;
+
+            stack ~= Vec2(pos.x + 1, pos.y);
+            stack ~= Vec2(pos.x - 1, pos.y);
+            stack ~= Vec2(pos.x, pos.y + 1);
+            stack ~= Vec2(pos.x, pos.y - 1);
+        }
+
+        foreach (y; 0 .. CELLS_Y)
+        {
+            foreach (x; 0 .. CELLS_X)
+            {
+                if (grid[y][x] == Cell.EMPTY && !visited[y][x])
+                {
+                    grid[y][x] = Cell.FILLED;
+                }
+            }
+        }
     }
 }
