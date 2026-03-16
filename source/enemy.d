@@ -22,6 +22,12 @@ class Enemy
 
     void update()
     {
+        // Player trail hit
+        if (game.grid[pos.y][pos.x] == Cell.TRAIL || game.grid[pos.y][pos.x] == Cell.PLAYER)
+        {
+            game.gameOver = true;
+        }
+
         // bouncing horizontally
         int nextX = pos.x + vel.x;
         if (nextX < 0 || nextX >= game.CELLS_X || game.grid[pos.y][nextX] == Cell.FILLED)
