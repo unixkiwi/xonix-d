@@ -67,12 +67,6 @@ class Game
         else if (IsKeyDown(KeyboardKey.KEY_DOWN))
             player.y += 1;
 
-        if (!(playerBefore == player))
-        {
-            // Clear player pos
-            grid[playerBefore.y][playerBefore.x] = Cell.TRAIL;
-        }
-
         // Check for boundaries
         if (player.x >= CELLS_X)
             player.x = CELLS_X - 1;
@@ -82,6 +76,12 @@ class Game
             player.y = CELLS_Y - 1;
         if (player.y < 0)
             player.y = 0;
+
+        if (!(playerBefore == player))
+        {
+            // Clear player pos
+            grid[playerBefore.y][playerBefore.x] = Cell.TRAIL;
+        }
 
         // Check for trail
         if (grid[player.y][player.x] == Cell.TRAIL)
