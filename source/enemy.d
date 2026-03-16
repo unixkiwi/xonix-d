@@ -31,7 +31,7 @@ class Enemy
         // Player trail hit
         if (game.grid[pos.y][pos.x] == Cell.TRAIL || game.grid[pos.y][pos.x] == Cell.PLAYER)
         {
-            game.gameOver = true;
+            game.lives--;
         }
 
         // bouncing horizontally

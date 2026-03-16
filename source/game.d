@@ -1,4 +1,7 @@
 import cell;
+import std.string;
+import std.format;
+import std.math;
 import std.stdio;
 import std.conv;
 import raylib;
@@ -26,8 +29,6 @@ class Game
     int H;
     int CELLS_X;
     int CELLS_Y;
-    float CANVAS_WIDTH;
-    float CANVAS_HEIGHT;
     Cell[][] grid;
     Vec2 player;
     Direction playerDir;
@@ -36,15 +37,13 @@ class Game
     bool gameOver = false;
     immutable float TICK_RATE = 0.04;
     float tickTimer = TICK_RATE;
+    int lives = 5;
+    int count = 0;
 
     this(int window_w, int window_h, int CELLS_X, int CELLS_Y)
     {
-        this.W = window_w / CELLS_X;
-        this.H = window_h / CELLS_Y;
         this.CELLS_X = CELLS_X;
         this.CELLS_Y = CELLS_Y;
-        CANVAS_WIDTH = CELLS_X * W;
-        CANVAS_HEIGHT = CELLS_Y * H;
 
         grid = new Cell[][](CELLS_Y, CELLS_X);
         player.x = to!int(CELLS_X / 2);
@@ -75,6 +74,7 @@ class Game
     void update(float dt)
     {
         tickTimer -= dt;
+        int prevLives = lives;
 
         // Input
         if (IsKeyDown(KeyboardKey.KEY_LEFT))
@@ -126,6 +126,12 @@ class Game
             if (player.y < 0)
                 player.y = 0;
 
+            // Enemy Update
+            foreach (ref enemy; enemies)
+            {
+                enemy.update();
+            }
+
             if (grid[playerBefore.y][playerBefore.x] == Cell.TRAIL && grid[player.y][player.x] == Cell
                 .FILLED)
             {
@@ -133,14 +139,25 @@ class Game
             }
             else if (grid[player.y][player.x] == Cell.TRAIL)
             {
-                gameOver = true;
+                lives--;
             }
 
-            // Enemy Update
-            foreach (ref enemy; enemies)
+            if (prevLives > lives)
             {
-                enemy.update();
+
+                player.x = to!int(CELLS_X / 2);
+                player.y = 1;
+                playerDir = Direction.DOWN;
+                foreach (ref cell; grid.joiner())
+                {
+                    if (cell == Cell.TRAIL)
+                        cell = Cell.EMPTY;
+                }
+
             }
+
+            if (lives < 1)
+                gameOver = true;
 
             tickTimer += TICK_RATE;
         }
@@ -157,6 +174,10 @@ class Game
             return;
         }
 
+        int scale = min(GetScreenWidth() / CELLS_X, GetScreenHeight() / CELLS_Y);
+        W = scale;
+        H = scale;
+        count = 0;
         foreach (colIndex, ref Cell[] row; grid)
         {
             foreach (index, ref Cell cell; row)
@@ -179,6 +200,8 @@ class Game
                 default:
                     color = Colors.LIME;
                 }
+                if (cell == Cell.FILLED)
+                    count++;
 
                 DrawRectangle(to!int(index * W), to!int(
                         colIndex * H), W, H, color);
@@ -189,6 +212,16 @@ class Game
                 }
             }
         }
+
+        float percent = (cast(float) count / (CELLS_X * CELLS_Y));
+
+        if (percent >= 0.8f)
+            gameOver = true;
+
+        string textStr = format("%d%%", cast(int)(percent * 100));
+
+        DrawText(toStringz(textStr), 5, 2, 35, Colors.BLACK);
+        DrawText(toStringz("Lives: " ~ to!string(lives)), 5, 50, 35, Colors.BLACK);
 
         // Enemy draw
         foreach (ref enemy; enemies)

@@ -5,8 +5,8 @@ import game;
 
 void main()
 {
-    immutable int WIDTH = 1500;
-    immutable int HEIGHT = 1000;
+    immutable int WIDTH = 75;
+    immutable int HEIGHT = 75;
 
     SetConfigFlags(ConfigFlags.FLAG_WINDOW_RESIZABLE);
     InitWindow(WIDTH, HEIGHT, "Xonix - DLang");
@@ -14,7 +14,7 @@ void main()
     scope (exit)
         CloseWindow();
 
-    Game game = new Game(WIDTH, HEIGHT, 150, 100);
+    Game game = new Game(800, 600, WIDTH, HEIGHT);
 
     while (!WindowShouldClose())
     {
@@ -23,28 +23,17 @@ void main()
         if (game.gameOver)
         {
             if (IsKeyPressed(KeyboardKey.KEY_R))
-                game = new Game(WIDTH, HEIGHT, 150, 100);
+                game = new Game(800, 600, WIDTH, HEIGHT);
         }
         else
         {
             game.update(dt);
         }
 
-        Camera2D camera;
-        camera.offset = Vector2(0, 0);
-        camera.target = Vector2(0, 0);
-        camera.rotation = 0;
-
-        float zoomW = cast(float) GetScreenWidth() / game.CANVAS_WIDTH;
-        float zoomH = cast(float) GetScreenHeight() / game.CANVAS_HEIGHT;
-        camera.zoom = fmin(zoomW, zoomH);
-
         BeginDrawing();
-        BeginMode2D(camera);
 
         scope (exit)
         {
-            EndMode2D();
             EndDrawing();
         }
 
