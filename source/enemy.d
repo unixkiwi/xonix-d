@@ -23,7 +23,7 @@ class Enemy
         if (vel.x == 0)
             vel.x = -1;
         if (vel.y == 0)
-            vel.x = -1;
+            vel.y = -1;
     }
 
     void update()
